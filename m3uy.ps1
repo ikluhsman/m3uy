@@ -92,6 +92,8 @@ $wmiDriveVolumeName = (Get-WmiObject Win32_LogicalDisk | where { $_.DeviceID -eq
 
 $customizedPathString = Read-Host "`nEnter folder to copy files, e.g. 'Music' or '\Music\mp3', Enter for root"
 
+# -------------------------------- Prepare & Confirm Copy --------------------------------------
+
 # get the target path and validate it
 
 if ($customizedPathString.StartsWith('\') -eq $false) {
@@ -105,7 +107,7 @@ if ((Test-Path -Path $targetPath) -eq $false) {
     }
 }
 
-# -------------------------------- Prepare & Confirm Copy --------------------------------------
+# ask for confirmation
 
 $fileCount = $playListFiles.Length
 $confirm = Read-Host "`nCopy $fileCount file(s) to to $targetPath with volume name $wmiDriveVolumeName ? (y/n)"
