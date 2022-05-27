@@ -1,8 +1,7 @@
 
 param(
     [Parameter()]
-    [string] $Playlist,
-    [string] $TargetPath
+    [string] $Playlist
 )
 
 function Get-RemovableDriveIsValid {
@@ -45,7 +44,7 @@ function Get-M3UPlayListFiles {
             }        
         }
     }
-    if ($invalidPlayListFiles.Length > 0) {
+    if ($invalidPlayListFiles.Length -gt 0) {
         Write-Output "WARNING Some files do not exist on system and will not be copied:`n$invalidPlayListFiles`n"
     }
     return $playListFiles
@@ -106,8 +105,8 @@ if ((Test-Path -Path $targetPath) -eq $false) {
     }
 }
 
-
 # -------------------------------- Prepare & Confirm Copy --------------------------------------
+
 $fileCount = $playListFiles.Length
 $confirm = Read-Host "`nCopy $fileCount file(s) to to $targetPath with volume name $wmiDriveVolumeName ? (y/n)"
 if ($confirm.ToLower() -ne 'y') {
@@ -117,6 +116,12 @@ if ($confirm.ToLower() -ne 'y') {
 # -------------------------------- Do Copy --------------------------------------
 
 foreach ($playListFile in $playListFiles) {
-    Write-Output ($playListFile)
-    Copy-Item "$playListFile" -Destination "$targetPath"
+    $uri = [System.Uri]($playListFile)
+    if ($uri.Scheme.Equals("file")) {
+        $fileName = [System.IO.Path]::GetFileName($uri.LocalPath)
+        if ((Test-Path -Path "$targetPath\$fileName") -eq $false) {
+            Write-Host $playListFile
+            Copy-Item "$playListFile" -Destination "$targetPath"
+        }
+    }
 }
